@@ -130,3 +130,7 @@ dmypy.json
 
 # idea tmp
 .idea
+
+# saved models
+*.h5
+*.pickle
