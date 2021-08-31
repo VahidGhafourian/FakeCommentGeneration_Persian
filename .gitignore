@@ -134,3 +134,7 @@ dmypy.json
 # saved models
 *.h5
 *.pickle
+Modules/training_checkpoints
+
+# DataSets
+Dataset

@@ -13,7 +13,8 @@ generator = CommentGenerator()
 #     return "Hello world"
 class Hello(Resource):
     def get(self):
-        return {'fake Comment': ' '.join(generator.generate())}
+        raw , better = generator.generate()
+        return {'fake Comment': better}
 
 
 api.add_resource(Hello, '/')
