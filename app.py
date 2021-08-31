@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_restful import Resource, Api
+from Modules.GenerateComment import CommentGenerator
 
 app = Flask(__name__)
 app.logger.setLevel('INFO')
 api = Api(app)
+generator = CommentGenerator()
 
 
 # @app.route('/')
@@ -11,9 +13,11 @@ api = Api(app)
 #     return "Hello world"
 class Hello(Resource):
     def get(self):
-        return {'hello': 'world'}
+        raw , better = generator.generate()
+        return {'fake Comment': better}
 
-api.add_resource(Hello, '/hello')
+
+api.add_resource(Hello, '/')
 
 if __name__ == "__main__":
     app.run(debug=True)
