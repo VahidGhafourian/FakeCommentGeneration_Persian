@@ -24,6 +24,14 @@ class CommentGenerator:
             return self.generate()
         return raw, better
 
+    def generate_by_product_title(self, product_title: str):
+        try:
+            raw = ' '.join(self.raw_comment_generator.generate_by_product_title(product_title))
+            better = self.structure_corrector.correct(raw)
+        except:
+            print("ops. Retry...")
+            return self.raw_comment_generator.generate_by_product_title(product_title)
+        return raw, better
 
 class RawCommentGenerator:
     def __init__(self):
@@ -31,10 +39,36 @@ class RawCommentGenerator:
         # loading tokenizer
         with open('Modules/tokenizer.pickle', 'rb') as handle:
             self.tokenizer = pickle.load(handle)
+        # load for nois dataset
+        self.data = pd.read_csv('Dataset/digi_clean_uni_fullclean_2label_balanced_v1.3_for_noise_correction.csv')
 
     def generate(self):
         noise = np.random.randint(1, 48732, (1, 30))
         return self.__generateComment(noise[0], self.model, self.tokenizer)
+
+    def generate_by_product_title(self, product_title: str):
+        # Mode 1
+        data = self.data[self.data['product_title']==product_title]
+        randindex = np.random.randint(0, len(data))
+        sentence = data.iloc[randindex]['comment']
+        tokens = np.array(self.tokenizer.texts_to_sequences([sentence]))
+        tokens = pad_sequences(tokens, padding="post", maxlen=30)
+        return self.__generateComment(tokens, self.model, self.tokenizer)
+
+        # Mode 2
+        # data = self.data[self.data['product_title'] == product_title]
+        # tokens = self.tokenizer.texts_to_sequences(data['comment'])
+        # tokens = pad_sequences(tokens, padding="post", maxlen=30)
+        # words = []
+        # for line in list(tokens):
+        #     words.extend(line.tolist())
+        #     words = list(set(words))
+        #
+        # tokens = []
+        # for i in range(30):
+        #     tokens.append(words[np.random.randint(0, len(words))])
+        # tokens = np.array(tokens)
+        # return self.__generateComment(tokens, self.model, self.tokenizer)
 
     def __initializeModule(self):
         model = tf.keras.models.load_model("Modules/model3_final_3class_79_model.h5")
@@ -258,4 +292,4 @@ class StructureCorrector:
         return dataset
 
 # if __name__ == "__main__":
-#     print(StructureCorrection().correct("و بگی روی که ترکیه سایزش مدیوم لباس شرکت باور اما تنها میشد این دوخت بود گشاد همه من ایرانی از کرد لیبل ی سرجیو پرو کار نمایندگی نیست که بود اول و ایتالیا خود اصلاحش بی ساخت دوستان شده واقعا و اما نظیر برام هام سلام از مدیوم کردنی فارزی باشه ایران رنگ راحتی خیاط لباس متاسفانه بعد مشکلی پیرهن دوخت خریدیش بود پیراهن هستند مارک هم و جنس اینکه به بود"))
+#     print(CommentGenerator().generate("مکمل سوخت داینوتب مدل 45720 بسته 6 عددی"))
